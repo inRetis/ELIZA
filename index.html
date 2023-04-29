@@ -1,0 +1,86 @@
+<HTML>
+<HEAD>
+	<TITLE>ELIZA</TITLE>
+	<SCRIPT LANGUAGE="JavaScript" TYPE="text/javascript" SRC="elizabot.js"></SCRIPT>
+  <SCRIPT LANGUAGE="JavaScript" TYPE="text/javascript" SRC="elizadata.js"></SCRIPT>
+  <link rel="stylesheet" type="text/css" href="style.css">
+	<meta name="viewport" content="width=device-width, user-scalable=no">
+
+<SCRIPT LANGUAGE="JavaScript" TYPE="text/javascript">
+
+var eliza = new ElizaBot();
+var elizaLines = new Array();
+var displayCols = 70;
+var displayRows = 20;
+
+function elizaReset() {
+	eliza.reset();
+	elizaLines.length = 0;
+	elizaStep();
+}
+
+function elizaStep() {
+	var f = document.forms.e_form;
+	var e_display = document.getElementById("e_display");
+	var userinput = f.e_input.value;
+	if (eliza.quit) {
+		f.e_input.value = '';
+		if (confirm("This session is over.\nStart over?")) elizaReset();
+		f.e_input.focus();
+		return;
+	}
+	else if (userinput != '') {
+		var usr = 'TU >   ' + userinput;
+		var rpl ='ELIZA > ' + eliza.transform(userinput);
+		elizaLines.push(usr);
+		elizaLines.push(rpl);
+		// display nicely
+		// (fit to textarea with last line free - reserved for extra line caused by word wrap)
+		/*var temp  = new Array();
+		var l = 0;
+		for (var i=elizaLines.length-1; i>=0; i--) {
+			l += 1 + Math.floor(elizaLines[i].length/displayCols);
+			if (l >= displayRows) break
+			else temp.push(elizaLines[i]);
+		}
+		elizaLines = temp.reverse();
+		*/
+		e_display.innerHTML = elizaLines.join('<br>');
+		f.e_input.scrollIntoView();
+		f.e_input.focus();
+	}
+	else if (elizaLines.length == 0) {
+		// no input and no saved lines -> output initial
+		var initial = eliza.getInitial();
+		elizaLines.push(initial);
+		e_display.innerHTML = initial + '<br>';
+		window.scrollTo(0,0);
+
+	}
+	f.e_input.value = '';
+}
+
+
+</SCRIPT>
+	<meta charset="utf-8">
+
+</HEAD>
+
+<BODY TOPMARGIN="0" LEFTMARGIN="0" RIGHTMARGIN="0" BOTTOMMARGIN="0" MARGINHEIGHT="0" MARGINWIDTH="0" STYLE="border:0" onload="window.setTimeout('elizaReset()',100)">
+
+<CENTER>
+<TABLE BORDER="0" CELLSPACING="10" CELLPADDING="0" style="width:100%">
+<FORM NAME="e_form" id="e_form" onsubmit="elizaStep(); return false">
+<TR><TD><div NAME="e_display" id="e_display"></div></TD></TR>
+<TR VALIGN="middle">
+	<TD><INPUT TYPE="text" NAME="e_input" style="width:100%;font-size:16px;" placeholder="Scrivi qui la tua risposta..."></TD>
+</TR>
+<TR VALIGN="middle">
+	<TD ALIGN="right"><INPUT TYPE="submit" VALUE="&nbsp;Rispondi&nbsp;"> <INPUT TYPE="reset" VALUE="Reset" onClick="window.setTimeout('elizaReset()',100)"></TD>
+</TR>
+</FORM>
+</TABLE>
+</CENTER>
+
+</BODY>
+</HTML>
